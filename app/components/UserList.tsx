@@ -16,6 +16,10 @@ export const UserList: React.FC<UserListProps> = ({ initialUsers }) => {
   const [users, setUsers] = useState(initialUsers);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+
+  const [searchType, setSearchType] = useState<"name" | "email">("name");
+  const [searchQuery, setSearchQuery] = useState("");
+
   const [editingUserId, setEditingUserId] = useState<number | null>(null);
   const [editingName, setEditingName] = useState("");
   const [editingEmail, setEditingEmail] = useState("");
@@ -37,8 +41,31 @@ export const UserList: React.FC<UserListProps> = ({ initialUsers }) => {
     setEditingEmail("");
   };
 
+  const filteredUsers = users.filter((user) =>
+    searchType === "name"
+      ? user.name.toLowerCase().includes(searchQuery.toLowerCase())
+      : user.email.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <>
+      <div>
+        <select
+          value={searchType}
+          onChange={(e) => setSearchType(e.target.value as "name" | "email")}
+          className="mr-2 text-white bg-black border rounded-lg p-4 shadow hover:shadow-lg mb-3 "
+        >
+          <option value="name">Search by name</option>
+          <option value="email">Search by email</option>
+        </select>
+        <input
+          type="text"
+          value={searchQuery}
+          placeholder={`Search users by ${searchType}`}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="mr-2 text-white bg-black border rounded-lg p-4 shadow hover:shadow-lg mb-3 "
+        />
+      </div>
       <div className="mb-4">
         <input
           type="text"
@@ -62,7 +89,7 @@ export const UserList: React.FC<UserListProps> = ({ initialUsers }) => {
         </button>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 ">
-        {users.map((user) => (
+        {filteredUsers.map((user) => (
           <div
             key={user.id}
             className="border rounded-lg p-4 shadow hover:shadow-xl transition-all ease-in-out duration-300 transform hover:scale-110"
@@ -120,7 +147,7 @@ export const UserList: React.FC<UserListProps> = ({ initialUsers }) => {
             )}
           </div>
         ))}
-        {users.length === 0 && (
+        {filteredUsers.length === 0 && (
           <p className="col-span-full text-center text-gray-500">
             No users available.
           </p>
